@@ -1,114 +1,149 @@
-<script>
-// ১. আপনার তথ্যগুলো আমি এখানে বসিয়ে দিয়েছি (Key টি শুধু চেক করে নিন)
-const SB_URL = 'https://tyinuznjbbzcjcgaotwm.supabase.co';
-const SB_KEY = 'আপনার_কপি_করা_ANON_KEY_এখানে_বসান'; // এখানে আপনার সেই বড় Key-টি পেস্ট করুন
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>রহমত উল্লা ফার্মেসি</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Hind Siliguri',sans-serif;background:#f0f7f4;padding:15px;color:#0d1b14;}
+  nav{background:linear-gradient(135deg,#065c39,#0a7c4e);color:#fff;padding:15px;border-radius:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 10px rgba(0,0,0,0.1);}
+  .nav-btn{background:rgba(255,255,255,0.15);color:#fff;border:none;padding:10px 18px;border-radius:8px;cursor:pointer;font-weight:600;transition:0.3s;}
+  .nav-btn:hover{background:rgba(255,255,255,0.3);}
+  .page{display:none;max-width:600px;margin:0 auto;}
+  .page.active{display:block;}
+  .card{background:#fff;padding:15px;border-radius:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);display:flex;justify-content:space-between;align-items:center;border:1px solid #e0eee7;}
+  .price-tag{background:#e6f4ee;color:#065c39;padding:5px 12px;border-radius:20px;font-weight:700;font-size:16px;}
+  .form-card{background:#fff;padding:25px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.08);}
+  .form-group{margin-bottom:15px;}
+  label{display:block;font-size:13px;font-weight:700;margin-bottom:6px;color:#065c39;text-transform:uppercase;letter-spacing:0.5px;}
+  input, select{width:100%;padding:12px;border:1.5px solid #d4e6dc;border-radius:10px;background:#f9fdfb;outline:none;font-family:inherit;}
+  input:focus{border-color:#0a7c4e;}
+  .btn-save{background:linear-gradient(135deg,#065c39,#0d9488);color:#fff;width:100%;padding:14px;border:none;border-radius:10px;font-weight:bold;font-size:16px;cursor:pointer;margin-top:10px;box-shadow:0 4px 10px rgba(6,92,57,0.2);}
+  #search{width:100%;padding:14px 18px;border-radius:12px;border:none;box-shadow:0 4px 12px rgba(0,0,0,0.05);margin-bottom:20px;font-family:inherit;}
+</style>
+</head>
+<body>
 
-const HEADERS = {
-  'apikey': SB_KEY,
-  'Authorization': `Bearer ${SB_KEY}`,
+<nav>
+  <div style="font-weight:700;font-size:20px;">🏥 রহমত উল্লা ফার্মেসি</div>
+  <div style="display:flex;gap:10px;">
+    <button class="nav-btn" onclick="showPage('home')">হোম</button>
+    <button class="nav-btn" onclick="showPage('admin')">অ্যাডমিন</button>
+  </div>
+</nav>
+
+<div id="page-home" class="page active">
+  <input type="text" id="search" placeholder="ওষুধের নাম বা জেনেরিক দিয়ে খুঁজুন..." oninput="render()">
+  <div id="list">লোড হচ্ছে...</div>
+</div>
+
+<div id="page-admin" class="page">
+  <div class="form-card">
+    <h3 style="margin-bottom:20px;color:#065c39;text-align:center;">নতুন ওষুধ যোগ করুন</h3>
+    <div class="form-group"><label>ওষুধের নাম (Brand)</label><input id="name" placeholder="যেমন: Napa Extra"></div>
+    <div class="form-group"><label>জেনেরিক নাম</label><input id="generic" placeholder="যেমন: Paracetamol"></div>
+    <div class="form-group"><label>ক্যাটাগরি</label>
+      <select id="cat">
+        <option>Analgesic</option><option>Antacid</option><option>Antibiotic</option><option>Vitamin</option><option>Other</option>
+      </select>
+    </div>
+    <div class="form-group"><label>খুচরা মূল্য (৳)</label><input id="price" type="number" step="0.01"></div>
+    <div class="form-group"><label>স্টক পরিমাণ</label><input id="stock" type="number"></div>
+    <button class="btn-save" onclick="save()">💾 ডাটা সেভ করুন</button>
+  </div>
+</div>
+
+<script>
+// --- SUPABASE কানেকশন (আপনার দেওয়া KEY যুক্ত করা হয়েছে) ---
+const SB_URL = 'https://tyinuznjbbzcjcgaotwm.supabase.co';
+const SB_KEY = 'EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5aW51em5qYmJ6Y2pjZ2FvdHdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMzIyNTQsImV4cCI6MjA5MjYwODI1NH0.Q7r8yIYiDJAbVyAwQvOk7XVKsFd2EvUYmeX6YwSGnYM';
+
+const HEADERS = { 
+  'apikey': SB_KEY, 
+  'Authorization': `Bearer ${SB_KEY}`, 
   'Content-Type': 'application/json',
   'Prefer': 'return=minimal'
 };
 
-let allMedicines = [];
-let currentCategory = 'All';
+let meds = [];
 
-// ২. ডাটাবেস থেকে ওষুধ লোড করার ফাংশন
-async function loadMedicines() {
-  try {
-    const res = await fetch(`${SB_URL}/rest/v1/medicines?select=*&order=brand.asc`, { headers: HEADERS });
-    allMedicines = await res.json();
-    renderCategories();
-    filterMedicines();
-  } catch(e) { console.error("Load Error:", e); }
+function showPage(p){
+  document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
 }
 
-// ৩. নতুন ওষুধ যোগ বা এডিট করা
-async function saveMedicine() {
-  const brand = document.getElementById('f_brand').value.trim();
-  const generic = document.getElementById('f_generic').value.trim();
-  const price = document.getElementById('f_price').value;
-  const editId = document.getElementById('editId').value;
+async function load(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/medicines?select=*&order=brand.asc`, {headers:HEADERS});
+    meds = await r.json();
+    render();
+  } catch(e) { document.getElementById('list').innerHTML = "ডাটা লোড করতে সমস্যা হচ্ছে।"; }
+}
 
-  if(!brand || !generic || !price) {
-    showMsg('❌ ব্র্যান্ড, জেনেরিক ও মূল্য আবশ্যক!', 'error');
+function render(){
+  const q = document.getElementById('search').value.toLowerCase();
+  const filtered = meds.filter(m=> m.brand.toLowerCase().includes(q) || m.generic.toLowerCase().includes(q));
+  
+  if(filtered.length === 0) {
+    document.getElementById('list').innerHTML = "<p style='text-align:center;color:#666;'>কোনো ওষুধ পাওয়া যায়নি।</p>";
     return;
   }
 
-  const body = {
-    brand, generic,
-    category: document.getElementById('f_cat').value,
-    manufacturer: document.getElementById('f_mfr').value,
+  document.getElementById('list').innerHTML = filtered.map(m=> `
+    <div class="card">
+      <div>
+        <div style="font-weight:700;font-size:17px;color:#065c39;">${m.brand}</div>
+        <div style="font-size:12px;color:#666;margin-bottom:5px;">${m.generic}</div>
+        <span style="font-size:11px;background:#f0f0f0;padding:2px 8px;border-radius:10px;">${m.category}</span>
+        <div style="font-size:12px;margin-top:8px;font-weight:600;color:${m.stock > 0 ? '#2d6a4f' : '#c00'}">
+          স্টক: ${m.stock}
+        </div>
+      </div>
+      <div class="price-tag">৳${parseFloat(m.unit_price).toFixed(2)}</div>
+    </div>
+  `).join('');
+}
+
+async function save(){
+  const brand = document.getElementById('name').value.trim();
+  const generic = document.getElementById('generic').value.trim();
+  const price = document.getElementById('price').value;
+
+  if(!brand || !generic || !price) {
+    alert('দয়া করে নাম, জেনেরিক এবং মূল্য অবশ্যই দিন!');
+    return;
+  }
+
+  const data = {
+    brand: brand,
+    generic: generic,
+    category: document.getElementById('cat').value,
     unit_price: parseFloat(price),
-    bulk_price: parseFloat(document.getElementById('f_bulk').value || price),
-    stock: parseInt(document.getElementById('f_stock').value || 0),
-    requires_rx: parseInt(document.getElementById('f_rx').value),
-    description: document.getElementById('f_desc').value,
-    side_effects: document.getElementById('f_side').value,
-    storage: document.getElementById('f_storage').value
+    stock: parseInt(document.getElementById('stock').value || 0)
   };
 
   try {
-    let url = `${SB_URL}/rest/v1/medicines`;
-    let method = 'POST';
-    if (editId) { url = `${url}?id=eq.${editId}`; method = 'PATCH'; }
-
-    const res = await fetch(url, { method, headers: HEADERS, body: JSON.stringify(body) });
-    if(res.ok) {
-      showMsg(editId ? '✅ আপডেট হয়েছে!' : '✅ যোগ হয়েছে!', 'success');
-      resetForm();
-      await loadMedicines();
-      renderAdminTable();
+    const r = await fetch(`${SB_URL}/rest/v1/medicines`, { 
+      method:'POST', 
+      headers:HEADERS, 
+      body:JSON.stringify(data) 
+    });
+    
+    if(r.ok){
+      alert('✅ ওষুধ সফলভাবে সেভ হয়েছে!');
+      // ফর্ম পরিষ্কার করা
+      ['name','generic','price','stock'].forEach(id=>document.getElementById(id).value='');
+      load(); 
+      showPage('home');
+    } else {
+      alert('সেভ করতে সমস্যা হয়েছে। ডাটাবেস টেবিল চেক করুন।');
     }
-  } catch(e) { showMsg('❌ ত্রুটি হয়েছে!', 'error'); }
+  } catch(e) { alert('ত্রুটি: ' + e.message); }
 }
 
-// ৪. ওষুধ মুছে ফেলা
-async function deleteMedicine(id) {
-  if(!confirm('এই ওষুধটি মুছে ফেলবেন?')) return;
-  try {
-    const res = await fetch(`${SB_URL}/rest/v1/medicines?id=eq.${id}`, { method: 'DELETE', headers: HEADERS });
-    if(res.ok) {
-      showMsg('🗑️ মুছে ফেলা হয়েছে।', 'success');
-      await loadMedicines();
-      renderAdminTable();
-    }
-  } catch(e) { showMsg('❌ ত্রুটি হয়েছে।', 'error'); }
-}
-
-// --- আপনার আগের রেন্ডারিং ফাংশনগুলো এখানে থাকবে ---
-// (renderCategories, filterMedicines, renderCards, openModal, renderInventory, renderAdminTable, resetForm, showMsg)
-// আমি এগুলো আপনার আগের দেওয়া কোড থেকে নিতে বলছি যাতে ডিজাইন ঠিক থাকে।
-
-// পেজ দেখানোর ফাংশন
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  if(event) event.target.classList.add('active');
-  if(name==='inventory') renderInventory();
-  if(name==='admin') renderAdminTable();
-}
-
-function renderCategories() {
-  const wrap = document.getElementById('categoryFilters');
-  const cats = ['All',...new Set(allMedicines.map(m=>m.category))];
-  wrap.innerHTML = cats.map(c=>`<button class="filter-btn ${c===currentCategory?'active':''}" onclick="setCategory('${c}')">${c}</button>`).join('');
-}
-
-function setCategory(cat) { currentCategory = cat; renderCategories(); filterMedicines(); }
-
-function filterMedicines() {
-  const q = (document.getElementById('searchInput').value||'').toLowerCase();
-  const filtered = allMedicines.filter(m=>{
-    const mq = !q || m.brand.toLowerCase().includes(q) || m.generic.toLowerCase().includes(q);
-    const mc = currentCategory==='All' || m.category===currentCategory;
-    return mq && mc;
-  });
-  renderCards(filtered);
-}
-
-// ... (বাকি রেন্ডারিং কোডগুলো হুবহু আগের মতো থাকবে) ...
-
-loadMedicines(); // অ্যাপ চালুর সময় ডাটা লোড করা
-    </script>
+load();
+</script>
+</body>
+</html>
