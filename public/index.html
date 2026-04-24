@@ -1,429 +1,114 @@
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rohmot Ulla Pharmacy</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Cormorant+Garamond:wght@700&display=swap');
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Hind Siliguri',sans-serif;background:#f5faf7;}
-  ::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-thumb{background:#b2d8c8;border-radius:3px;}
-
-  /* NAV */
-  nav{background:#0a7c4e;padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.15);}
-  .nav-brand{display:flex;align-items:center;gap:10px;color:#fff;}
-  .nav-brand span{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;}
-  .nav-brand small{font-size:9px;letter-spacing:2px;opacity:.7;text-transform:uppercase;display:block;}
-  .nav-links{display:flex;gap:4px;}
-  .nav-btn{background:transparent;border:none;color:rgba(255,255,255,0.75);padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Hind Siliguri',sans-serif;transition:all .2s;}
-  .nav-btn.active,.nav-btn:hover{background:rgba(255,255,255,0.15);color:#fff;}
-
-  /* PAGES */
-  .page{display:none;padding:24px 20px;max-width:1000px;margin:0 auto;}
-  .page.active{display:block;}
-
-  /* CARDS */
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
-  .card{background:#fff;border-radius:14px;padding:18px;border:1.5px solid #d4e6dc;cursor:pointer;transition:all .2s;}
-  .card:hover{border-color:#0a7c4e;box-shadow:0 8px 24px rgba(10,124,78,0.12);transform:translateY(-2px);}
-  .card-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#0d1b14;}
-  .card-generic{font-size:11px;color:#6b8c7d;margin-top:2px;font-style:italic;}
-  .card-price{background:linear-gradient(135deg,#0a7c4e,#0d9488);color:#fff;border-radius:8px;padding:6px 12px;font-size:14px;font-weight:700;white-space:nowrap;}
-  .card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #e6f4ee;}
-  .badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;}
-  .stock-good{color:#0a7c4e;} .stock-low{color:#f59e0b;} .stock-out{color:#dc2626;}
-  .dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px;}
-
-  /* SEARCH */
-  .search-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
-  .search-bar input,.search-bar select{padding:10px 14px;border:1.5px solid #d4e6dc;border-radius:10px;font-size:14px;font-family:'Hind Siliguri',sans-serif;background:#fff;color:#0d1b14;flex:1;min-width:160px;}
-  .search-bar input:focus,.search-bar select:focus{outline:none;border-color:#0a7c4e;}
-
-  /* MODAL */
-  .overlay{display:none;position:fixed;inset:0;background:rgba(13,27,20,0.7);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center;padding:16px;}
-  .overlay.open{display:flex;}
-  .modal{background:#fff;border-radius:20px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;}
-  .modal-header{background:linear-gradient(135deg,#065c39,#0d9488);padding:24px;border-radius:20px 20px 0 0;color:#fff;position:relative;}
-  .modal-close{position:absolute;top:14px;right:16px;background:rgba(255,255,255,0.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;font-size:14px;cursor:pointer;}
-  .modal-body{padding:20px 24px;}
-  .info-row{margin-bottom:16px;}
-  .info-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#0a7c4e;margin-bottom:5px;}
-  .info-text{font-size:13px;color:#2d4a3e;line-height:1.7;border-left:3px solid #e6f4ee;padding-left:12px;}
-  .price-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
-  .price-box{background:#f5faf7;border-radius:10px;padding:12px;text-align:center;}
-  .price-val{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#0a7c4e;}
-  .price-lbl{font-size:10px;color:#6b8c7d;font-weight:700;text-transform:uppercase;}
-
-  /* FORM */
-  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-  .form-group{display:flex;flex-direction:column;gap:6px;}
-  .form-group.full{grid-column:1/-1;}
-  .form-group label{font-size:11px;font-weight:700;color:#2d4a3e;letter-spacing:.5px;text-transform:uppercase;}
-  .form-group input,.form-group select,.form-group textarea{padding:10px 12px;border:1.5px solid #d4e6dc;border-radius:9px;font-size:13px;font-family:'Hind Siliguri',sans-serif;color:#0d1b14;background:#f5faf7;}
-  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#0a7c4e;background:#fff;}
-  .form-group textarea{resize:vertical;min-height:70px;}
-
-  /* BUTTONS */
-  .btn{padding:10px 22px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Hind Siliguri',sans-serif;border:none;transition:all .2s;}
-  .btn-green{background:linear-gradient(135deg,#0a7c4e,#0d9488);color:#fff;}
-  .btn-green:hover{opacity:.9;}
-  .btn-red{background:#fef2f2;color:#dc2626;border:1px solid #dc2626;}
-  .btn-gray{background:#f5faf7;color:#6b8c7d;border:1.5px solid #d4e6dc;}
-
-  /* TABLE */
-  .table-wrap{background:#fff;border-radius:14px;border:1px solid #d4e6dc;overflow:hidden;overflow-x:auto;}
-  table{width:100%;border-collapse:collapse;min-width:600px;}
-  th{background:#f5faf7;padding:11px 16px;text-align:left;font-size:10px;font-weight:800;color:#6b8c7d;letter-spacing:.8px;text-transform:uppercase;border-bottom:1px solid #d4e6dc;}
-  td{padding:11px 16px;font-size:13px;color:#2d4a3e;border-bottom:1px solid #f0f7f3;}
-  tr:last-child td{border-bottom:none;}
-  tr:hover td{background:#f9fdfb;}
-
-  /* STAT */
-  .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:24px;}
-  .stat-card{background:#fff;border-radius:14px;padding:18px;border:1px solid #d4e6dc;text-align:center;}
-  .stat-num{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;}
-  .stat-lbl{font-size:11px;color:#6b8c7d;font-weight:700;margin-top:2px;}
-
-  /* ALERT */
-  .alert{padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:16px;display:none;}
-  .alert.show{display:block;}
-  .alert-green{background:#e6f4ee;color:#065c39;border:1px solid #0a7c4e;}
-  .alert-red{background:#fef2f2;color:#dc2626;border:1px solid #dc2626;}
-
-  @media(max-width:600px){
-    .form-grid{grid-template-columns:1fr;}
-    .nav-links .nav-btn{padding:8px 10px;font-size:12px;}
-  }
-</style>
-</head>
-<body>
-
-<!-- NAV -->
-<nav>
-  <div class="nav-brand">
-    <span>🏥</span>
-    <div>
-      <span>Rohmot Ulla Pharmacy</span>
-      <small>Management System</small>
-    </div>
-  </div>
-  <div class="nav-links">
-    <button class="nav-btn active" onclick="showPage('home')">🏠 হোম</button>
-    <button class="nav-btn" onclick="showPage('medicines')">💊 ওষুধ</button>
-    <button class="nav-btn" onclick="showPage('inventory')">📦 স্টক</button>
-    <button class="nav-btn" onclick="showPage('admin')">⚙️ এডমিন</button>
-  </div>
-</nav>
-
-<!-- HOME PAGE -->
-<div id="page-home" class="page active">
-  <div style="text-align:center;padding:30px 0 24px;">
-    <div style="font-size:48px;margin-bottom:12px;">🏥</div>
-    <h1 style="font-family:'Cormorant Garamond',serif;font-size:28px;color:#0d1b14;">রহমত উল্লা ফার্মেসি</h1>
-    <p style="color:#6b8c7d;font-size:14px;margin-top:6px;">আপনার বিশ্বস্ত ওষুধের দোকান</p>
-  </div>
-  <div class="stats" id="home-stats"></div>
-  <h3 style="font-size:15px;font-weight:700;color:#0d1b14;margin-bottom:14px;">সাম্প্রতিক ওষুধ</h3>
-  <div class="grid" id="home-recent"></div>
-</div>
-
-<!-- MEDICINES PAGE -->
-<div id="page-medicines" class="page">
-  <h2 style="font-family:'Cormorant Garamond',serif;font-size:24px;color:#0d1b14;margin-bottom:18px;">💊 সকল ওষুধ</h2>
-  <div class="search-bar">
-    <input type="text" id="search-input" placeholder="🔍 ওষুধের নাম লিখুন..." oninput="filterMedicines()">
-    <select id="cat-filter" onchange="filterMedicines()">
-      <option value="All">সব ক্যাটাগরি</option>
-      <option>Analgesic</option><option>Antacid</option><option>Antibiotic</option>
-      <option>Antihistamine</option><option>Vitamin</option><option>Antidiabetic</option>
-      <option>Antihypertensive</option><option>Antilipidemic</option>
-    </select>
-  </div>
-  <div class="grid" id="med-grid"></div>
-</div>
-
-<!-- INVENTORY PAGE -->
-<div id="page-inventory" class="page">
-  <h2 style="font-family:'Cormorant Garamond',serif;font-size:24px;color:#0d1b14;margin-bottom:18px;">📦 স্টক ইনভেন্টরি</h2>
-  <div class="stats" id="inv-stats"></div>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>ওষুধ</th><th>ক্যাটাগরি</th><th>দাম</th><th>স্টক</th><th>অবস্থা</th></tr></thead>
-      <tbody id="inv-table"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ADMIN PAGE -->
-<div id="page-admin" class="page">
-  <h2 style="font-family:'Cormorant Garamond',serif;font-size:24px;color:#0d1b14;margin-bottom:18px;">⚙️ এডমিন প্যানেল</h2>
-  <div id="admin-alert" class="alert"></div>
-
-  <!-- ADD FORM -->
-  <div style="background:#fff;border-radius:14px;border:1px solid #d4e6dc;padding:20px;margin-bottom:24px;">
-    <h3 style="font-size:16px;font-weight:700;color:#0d1b14;margin-bottom:16px;" id="form-title">➕ নতুন ওষুধ যোগ করুন</h3>
-    <input type="hidden" id="edit-id">
-    <div class="form-grid">
-      <div class="form-group"><label>ব্র্যান্ড নাম *</label><input id="f-brand" placeholder="যেমন: Napa Extra"></div>
-      <div class="form-group"><label>জেনেরিক নাম *</label><input id="f-generic" placeholder="যেমন: Paracetamol"></div>
-      <div class="form-group"><label>ক্যাটাগরি *</label>
-        <select id="f-cat">
-          <option>Analgesic</option><option>Antacid</option><option>Antibiotic</option>
-          <option>Antihistamine</option><option>Vitamin</option><option>Antidiabetic</option>
-          <option>Antihypertensive</option><option>Antilipidemic</option>
-        </select>
-      </div>
-      <div class="form-group"><label>প্রস্তুতকারক *</label><input id="f-mfr" placeholder="যেমন: Square Pharma"></div>
-      <div class="form-group"><label>ইউনিট মূল্য (৳) *</label><input id="f-price" type="number" placeholder="0.00" step="0.01"></div>
-      <div class="form-group"><label>বাল্ক মূল্য (৳)</label><input id="f-bulk" type="number" placeholder="0.00" step="0.01"></div>
-      <div class="form-group"><label>স্টক পরিমাণ</label><input id="f-stock" type="number" placeholder="0"></div>
-      <div class="form-group"><label>প্রেসক্রিপশন?</label>
-        <select id="f-rx"><option value="0">না (OTC)</option><option value="1">হ্যাঁ (Rx)</option></select>
-      </div>
-      <div class="form-group full"><label>বিবরণ</label><textarea id="f-desc" placeholder="ওষুধের ব্যবহার ও কার্যকারিতা..."></textarea></div>
-      <div class="form-group full"><label>পার্শ্বপ্রতিক্রিয়া</label><textarea id="f-side" placeholder="পার্শ্বপ্রতিক্রিয়া..."></textarea></div>
-      <div class="form-group full"><label>সংরক্ষণ পদ্ধতি</label><input id="f-storage" placeholder="যেমন: ৩০°C এর নিচে রাখুন"></div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:18px;">
-      <button class="btn btn-green" onclick="saveMedicine()">💾 সংরক্ষণ করুন</button>
-      <button class="btn btn-gray" onclick="resetForm()" id="cancel-btn" style="display:none;">বাতিল</button>
-    </div>
-  </div>
-
-  <!-- ADMIN TABLE -->
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>ওষুধ</th><th>দাম</th><th>স্টক</th><th>Action</th></tr></thead>
-      <tbody id="admin-table"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- DETAIL MODAL -->
-<div class="overlay" id="modal" onclick="closeModal(event)">
-  <div class="modal">
-    <div class="modal-header">
-      <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">✕</button>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-        <span id="m-brand" style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;"></span>
-        <span id="m-rx-tag"></span>
-      </div>
-      <div id="m-generic" style="font-size:12px;opacity:.7;margin-bottom:10px;"></div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <span id="m-cat-badge" class="badge"></span>
-        <span id="m-mfr" style="font-size:11px;opacity:.6;"></span>
-      </div>
-    </div>
-    <div class="modal-body">
-      <div class="price-grid">
-        <div class="price-box"><div id="m-price" class="price-val"></div><div class="price-lbl">ইউনিট মূল্য</div></div>
-        <div class="price-box"><div id="m-bulk" class="price-val"></div><div class="price-lbl">বাল্ক মূল্য</div></div>
-      </div>
-      <div class="info-row"><div class="info-label">📋 বিবরণ</div><div id="m-desc" class="info-text"></div></div>
-      <div class="info-row"><div class="info-label">⚠️ পার্শ্বপ্রতিক্রিয়া</div><div id="m-side" class="info-text"></div></div>
-      <div class="info-row"><div class="info-label">🧊 সংরক্ষণ</div><div id="m-storage" class="info-text"></div></div>
-    </div>
-  </div>
-</div>
-
 <script>
-const API = '';
-let allMeds = [];
+// ১. আপনার তথ্যগুলো আমি এখানে বসিয়ে দিয়েছি (Key টি শুধু চেক করে নিন)
+const SB_URL = 'https://tyinuznjbbzcjcgaotwm.supabase.co';
+const SB_KEY = 'আপনার_কপি_করা_ANON_KEY_এখানে_বসান'; // এখানে আপনার সেই বড় Key-টি পেস্ট করুন
 
-async function fetchMedicines() {
+const HEADERS = {
+  'apikey': SB_KEY,
+  'Authorization': `Bearer ${SB_KEY}`,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=minimal'
+};
+
+let allMedicines = [];
+let currentCategory = 'All';
+
+// ২. ডাটাবেস থেকে ওষুধ লোড করার ফাংশন
+async function loadMedicines() {
   try {
-    const res = await fetch(API + '/api/medicines');
-    allMeds = await res.json();
-  } catch(e) {
-    allMeds = [];
-  }
-  renderHome();
-  renderMedicines(allMeds);
-  renderInventory();
-  renderAdminTable();
+    const res = await fetch(`${SB_URL}/rest/v1/medicines?select=*&order=brand.asc`, { headers: HEADERS });
+    allMedicines = await res.json();
+    renderCategories();
+    filterMedicines();
+  } catch(e) { console.error("Load Error:", e); }
 }
 
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
-  event.target.classList.add('active');
-}
-
-function stockStatus(n) {
-  if(n === 0) return '<span class="dot" style="background:#dc2626"></span><span class="stock-out">শেষ</span>';
-  if(n < 100) return '<span class="dot" style="background:#f59e0b"></span><span class="stock-low">কম ('+ n +')</span>';
-  return '<span class="dot" style="background:#22c55e"></span><span class="stock-good">আছে ('+ n +')</span>';
-}
-
-function renderHome() {
-  const total = allMeds.length;
-  const avail = allMeds.filter(m => m.stock > 0).length;
-  const out   = allMeds.filter(m => m.stock === 0).length;
-  const val   = allMeds.reduce((s,m) => s + m.unit_price * m.stock, 0);
-  document.getElementById('home-stats').innerHTML = `
-    <div class="stat-card"><div class="stat-num" style="color:#0a7c4e">${total}</div><div class="stat-lbl">মোট ওষুধ</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:#0d9488">${avail}</div><div class="stat-lbl">পাওয়া যাচ্ছে</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:#dc2626">${out}</div><div class="stat-lbl">স্টক শেষ</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:#c8922a">৳${val.toLocaleString()}</div><div class="stat-lbl">মোট মূল্য</div></div>
-  `;
-  const recent = allMeds.slice(-6).reverse();
-  document.getElementById('home-recent').innerHTML = recent.map(m => cardHTML(m)).join('');
-}
-
-function cardHTML(m) {
-  return `<div class="card" onclick="openModal(${m.id})">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
-      <div><div class="card-title">${m.brand}</div><div class="card-generic">${m.generic}</div></div>
-      <div class="card-price">৳${parseFloat(m.unit_price).toFixed(2)}</div>
-    </div>
-    <div class="card-footer">
-      <span class="badge" style="background:#e6f4ee;color:#065c39;border:1px solid #0a7c4e">${m.category}</span>
-      <span>${stockStatus(m.stock)}</span>
-    </div>
-  </div>`;
-}
-
-function renderMedicines(list) {
-  document.getElementById('med-grid').innerHTML = list.length
-    ? list.map(m => cardHTML(m)).join('')
-    : '<p style="color:#6b8c7d;padding:40px;text-align:center;">কোনো ওষুধ পাওয়া যায়নি</p>';
-}
-
-function filterMedicines() {
-  const q = document.getElementById('search-input').value.toLowerCase();
-  const cat = document.getElementById('cat-filter').value;
-  const filtered = allMeds.filter(m => {
-    const mq = !q || m.brand.toLowerCase().includes(q) || m.generic.toLowerCase().includes(q);
-    const mc = cat === 'All' || m.category === cat;
-    return mq && mc;
-  });
-  renderMedicines(filtered);
-}
-
-function renderInventory() {
-  const good = allMeds.filter(m=>m.stock>=100).length;
-  const low  = allMeds.filter(m=>m.stock>0&&m.stock<100).length;
-  const out  = allMeds.filter(m=>m.stock===0).length;
-  document.getElementById('inv-stats').innerHTML = `
-    <div class="stat-card"><div class="stat-num" style="color:#0a7c4e">${good}</div><div class="stat-lbl">✅ পর্যাপ্ত স্টক</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:#f59e0b">${low}</div><div class="stat-lbl">⚠️ কম স্টক</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:#dc2626">${out}</div><div class="stat-lbl">❌ স্টক শেষ</div></div>
-  `;
-  document.getElementById('inv-table').innerHTML = allMeds.map(m => `
-    <tr>
-      <td><strong>${m.brand}</strong><br><small style="color:#6b8c7d">${m.generic}</small></td>
-      <td>${m.category}</td>
-      <td style="font-weight:700;color:#0a7c4e">৳${parseFloat(m.unit_price).toFixed(2)}</td>
-      <td style="font-weight:700">${m.stock}</td>
-      <td>${stockStatus(m.stock)}</td>
-    </tr>`).join('');
-}
-
-function renderAdminTable() {
-  document.getElementById('admin-table').innerHTML = allMeds.map(m => `
-    <tr>
-      <td><strong>${m.brand}</strong><br><small style="color:#6b8c7d">${m.generic}</small></td>
-      <td style="color:#0a7c4e;font-weight:700">৳${parseFloat(m.unit_price).toFixed(2)}</td>
-      <td>${m.stock}</td>
-      <td>
-        <button class="btn btn-gray" style="padding:6px 12px;font-size:11px;margin-right:6px" onclick="editMedicine(${m.id})">✏️ Edit</button>
-        <button class="btn btn-red" style="padding:6px 12px;font-size:11px" onclick="deleteMedicine(${m.id})">🗑️ Delete</button>
-      </td>
-    </tr>`).join('');
-}
-
-function openModal(id) {
-  const m = allMeds.find(x => x.id === id);
-  if(!m) return;
-  document.getElementById('m-brand').textContent = m.brand;
-  document.getElementById('m-generic').textContent = m.generic;
-  document.getElementById('m-rx-tag').innerHTML = m.requires_rx ? '<span style="background:#0d1b14;color:#f87171;font-size:9px;font-weight:800;padding:2px 7px;border-radius:3px;letter-spacing:1px">Rx</span>' : '';
-  document.getElementById('m-cat-badge').textContent = m.category;
-  document.getElementById('m-mfr').textContent = '| ' + m.manufacturer;
-  document.getElementById('m-price').textContent = '৳' + parseFloat(m.unit_price).toFixed(2);
-  document.getElementById('m-bulk').textContent = '৳' + parseFloat(m.bulk_price||m.unit_price).toFixed(2);
-  document.getElementById('m-desc').textContent = m.description || '-';
-  document.getElementById('m-side').textContent = m.side_effects || '-';
-  document.getElementById('m-storage').textContent = m.storage || '-';
-  document.getElementById('modal').classList.add('open');
-}
-
-function closeModal(e) {
-  if(e.target.id === 'modal') document.getElementById('modal').classList.remove('open');
-}
-
+// ৩. নতুন ওষুধ যোগ বা এডিট করা
 async function saveMedicine() {
-  const brand = document.getElementById('f-brand').value.trim();
-  const generic = document.getElementById('f-generic').value.trim();
-  const price = document.getElementById('f-price').value;
-  if(!brand || !generic || !price) { showAlert('❌ ব্র্যান্ড নাম, জেনেরিক নাম ও মূল্য আবশ্যক!', 'red'); return; }
-  const data = {
+  const brand = document.getElementById('f_brand').value.trim();
+  const generic = document.getElementById('f_generic').value.trim();
+  const price = document.getElementById('f_price').value;
+  const editId = document.getElementById('editId').value;
+
+  if(!brand || !generic || !price) {
+    showMsg('❌ ব্র্যান্ড, জেনেরিক ও মূল্য আবশ্যক!', 'error');
+    return;
+  }
+
+  const body = {
     brand, generic,
-    category: document.getElementById('f-cat').value,
-    manufacturer: document.getElementById('f-mfr').value,
+    category: document.getElementById('f_cat').value,
+    manufacturer: document.getElementById('f_mfr').value,
     unit_price: parseFloat(price),
-    bulk_price: parseFloat(document.getElementById('f-bulk').value || price),
-    stock: parseInt(document.getElementById('f-stock').value || 0),
-    requires_rx: parseInt(document.getElementById('f-rx').value),
-    description: document.getElementById('f-desc').value,
-    side_effects: document.getElementById('f-side').value,
-    storage: document.getElementById('f-storage').value,
+    bulk_price: parseFloat(document.getElementById('f_bulk').value || price),
+    stock: parseInt(document.getElementById('f_stock').value || 0),
+    requires_rx: parseInt(document.getElementById('f_rx').value),
+    description: document.getElementById('f_desc').value,
+    side_effects: document.getElementById('f_side').value,
+    storage: document.getElementById('f_storage').value
   };
-  const editId = document.getElementById('edit-id').value;
-  const url = editId ? API + '/api/medicines/' + editId : API + '/api/medicines';
-  const method = editId ? 'PUT' : 'POST';
-  await fetch(url, { method, headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
-  showAlert('✅ সফলভাবে সংরক্ষিত হয়েছে!', 'green');
-  resetForm();
-  fetchMedicines();
+
+  try {
+    let url = `${SB_URL}/rest/v1/medicines`;
+    let method = 'POST';
+    if (editId) { url = `${url}?id=eq.${editId}`; method = 'PATCH'; }
+
+    const res = await fetch(url, { method, headers: HEADERS, body: JSON.stringify(body) });
+    if(res.ok) {
+      showMsg(editId ? '✅ আপডেট হয়েছে!' : '✅ যোগ হয়েছে!', 'success');
+      resetForm();
+      await loadMedicines();
+      renderAdminTable();
+    }
+  } catch(e) { showMsg('❌ ত্রুটি হয়েছে!', 'error'); }
 }
 
-function editMedicine(id) {
-  const m = allMeds.find(x => x.id === id);
-  if(!m) return;
-  document.getElementById('edit-id').value = m.id;
-  document.getElementById('f-brand').value = m.brand;
-  document.getElementById('f-generic').value = m.generic;
-  document.getElementById('f-cat').value = m.category;
-  document.getElementById('f-mfr').value = m.manufacturer;
-  document.getElementById('f-price').value = m.unit_price;
-  document.getElementById('f-bulk').value = m.bulk_price;
-  document.getElementById('f-stock').value = m.stock;
-  document.getElementById('f-rx').value = m.requires_rx;
-  document.getElementById('f-desc').value = m.description || '';
-  document.getElementById('f-side').value = m.side_effects || '';
-  document.getElementById('f-storage').value = m.storage || '';
-  document.getElementById('form-title').textContent = '✏️ ওষুধ সম্পাদনা করুন';
-  document.getElementById('cancel-btn').style.display = 'inline-block';
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
+// ৪. ওষুধ মুছে ফেলা
 async function deleteMedicine(id) {
   if(!confirm('এই ওষুধটি মুছে ফেলবেন?')) return;
-  await fetch(API + '/api/medicines/' + id, { method: 'DELETE' });
-  showAlert('🗑️ মুছে ফেলা হয়েছে।', 'green');
-  fetchMedicines();
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/medicines?id=eq.${id}`, { method: 'DELETE', headers: HEADERS });
+    if(res.ok) {
+      showMsg('🗑️ মুছে ফেলা হয়েছে।', 'success');
+      await loadMedicines();
+      renderAdminTable();
+    }
+  } catch(e) { showMsg('❌ ত্রুটি হয়েছে।', 'error'); }
 }
 
-function resetForm() {
-  ['f-brand','f-generic','f-mfr','f-price','f-bulk','f-stock','f-desc','f-side','f-storage'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('f-cat').value = 'Analgesic';
-  document.getElementById('f-rx').value = '0';
-  document.getElementById('edit-id').value = '';
-  document.getElementById('form-title').textContent = '➕ নতুন ওষুধ যোগ করুন';
-  document.getElementById('cancel-btn').style.display = 'none';
+// --- আপনার আগের রেন্ডারিং ফাংশনগুলো এখানে থাকবে ---
+// (renderCategories, filterMedicines, renderCards, openModal, renderInventory, renderAdminTable, resetForm, showMsg)
+// আমি এগুলো আপনার আগের দেওয়া কোড থেকে নিতে বলছি যাতে ডিজাইন ঠিক থাকে।
+
+// পেজ দেখানোর ফাংশন
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(event) event.target.classList.add('active');
+  if(name==='inventory') renderInventory();
+  if(name==='admin') renderAdminTable();
 }
 
-function showAlert(msg, type) {
-  const el = document.getElementById('admin-alert');
-  el.textContent = msg;
-  el.className = 'alert show alert-' + type;
-  setTimeout(() => el.classList.remove('show'), 3000);
+function renderCategories() {
+  const wrap = document.getElementById('categoryFilters');
+  const cats = ['All',...new Set(allMedicines.map(m=>m.category))];
+  wrap.innerHTML = cats.map(c=>`<button class="filter-btn ${c===currentCategory?'active':''}" onclick="setCategory('${c}')">${c}</button>`).join('');
 }
 
-fetchMedicines();
-</script>
-</body>
-                                                              </html>
+function setCategory(cat) { currentCategory = cat; renderCategories(); filterMedicines(); }
+
+function filterMedicines() {
+  const q = (document.getElementById('searchInput').value||'').toLowerCase();
+  const filtered = allMedicines.filter(m=>{
+    const mq = !q || m.brand.toLowerCase().includes(q) || m.generic.toLowerCase().includes(q);
+    const mc = currentCategory==='All' || m.category===currentCategory;
+    return mq && mc;
+  });
+  renderCards(filtered);
+}
+
+// ... (বাকি রেন্ডারিং কোডগুলো হুবহু আগের মতো থাকবে) ...
+
+loadMedicines(); // অ্যাপ চালুর সময় ডাটা লোড করা
+    </script>
