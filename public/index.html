@@ -1,148 +1,82 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>রহমত উল্লা ফার্মেসি</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Hind Siliguri',sans-serif;background:#f0f7f4;padding:15px;color:#0d1b14;}
-  nav{background:linear-gradient(135deg,#065c39,#0a7c4e);color:#fff;padding:15px;border-radius:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 10px rgba(0,0,0,0.1);}
-  .nav-btn{background:rgba(255,255,255,0.15);color:#fff;border:none;padding:10px 18px;border-radius:8px;cursor:pointer;font-weight:600;transition:0.3s;}
-  .nav-btn:hover{background:rgba(255,255,255,0.3);}
-  .page{display:none;max-width:600px;margin:0 auto;}
-  .page.active{display:block;}
-  .card{background:#fff;padding:15px;border-radius:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);display:flex;justify-content:space-between;align-items:center;border:1px solid #e0eee7;}
-  .price-tag{background:#e6f4ee;color:#065c39;padding:5px 12px;border-radius:20px;font-weight:700;font-size:16px;}
-  .form-card{background:#fff;padding:25px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.08);}
-  .form-group{margin-bottom:15px;}
-  label{display:block;font-size:13px;font-weight:700;margin-bottom:6px;color:#065c39;text-transform:uppercase;letter-spacing:0.5px;}
-  input, select{width:100%;padding:12px;border:1.5px solid #d4e6dc;border-radius:10px;background:#f9fdfb;outline:none;font-family:inherit;}
-  input:focus{border-color:#0a7c4e;}
-  .btn-save{background:linear-gradient(135deg,#065c39,#0d9488);color:#fff;width:100%;padding:14px;border:none;border-radius:10px;font-weight:bold;font-size:16px;cursor:pointer;margin-top:10px;box-shadow:0 4px 10px rgba(6,92,57,0.2);}
-  #search{width:100%;padding:14px 18px;border-radius:12px;border:none;box-shadow:0 4px 12px rgba(0,0,0,0.05);margin-bottom:20px;font-family:inherit;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>রহমত উল্লা ফার্মেসি</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; background: #f0f7f4; padding: 15px; }
+        .card { background: white; padding: 15px; margin-bottom: 12px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 5px solid #065c39; }
+        .brand { font-size: 18px; font-weight: 700; color: #065c39; }
+        .generic { font-size: 14px; color: #555; font-style: italic; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1.5px solid #d4e6dc; border-radius: 10px; }
+        button { background: #065c39; color: white; padding: 12px; border: none; border-radius: 10px; cursor: pointer; width: 100%; font-weight: bold; }
+        nav { display: flex; gap: 10px; margin-bottom: 20px; }
+    </style>
 </head>
 <body>
 
 <nav>
-  <div style="font-weight:700;font-size:20px;">🏥 রহমত উল্লা ফার্মেসি</div>
-  <div style="display:flex;gap:10px;">
-    <button class="nav-btn" onclick="showPage('home')">হোম</button>
-    <button class="nav-btn" onclick="showPage('admin')">অ্যাডমিন</button>
-  </div>
+    <button onclick="location.reload()">হোম</button>
+    <button style="background: #333;" onclick="document.getElementById('home').style.display='none'; document.getElementById('admin').style.display='block';">অ্যাডমিন</button>
 </nav>
 
-<div id="page-home" class="page active">
-  <input type="text" id="search" placeholder="ওষুধের নাম বা জেনেরিক দিয়ে খুঁজুন..." oninput="render()">
-  <div id="list">লোড হচ্ছে...</div>
+<div id="home">
+    <input type="text" id="search" placeholder="ওষুধ বা জেনেরিক দিয়ে খুঁজুন..." oninput="render()">
+    <div id="list">লোড হচ্ছে...</div>
 </div>
 
-<div id="page-admin" class="page">
-  <div class="form-card">
-    <h3 style="margin-bottom:20px;color:#065c39;text-align:center;">নতুন ওষুধ যোগ করুন</h3>
-    <div class="form-group"><label>ওষুধের নাম (Brand)</label><input id="name" placeholder="যেমন: Napa Extra"></div>
-    <div class="form-group"><label>জেনেরিক নাম</label><input id="generic" placeholder="যেমন: Paracetamol"></div>
-    <div class="form-group"><label>ক্যাটাগরি</label>
-      <select id="cat">
-        <option>Analgesic</option><option>Antacid</option><option>Antibiotic</option><option>Vitamin</option><option>Other</option>
-      </select>
+<div id="admin" style="display:none;">
+    <div class="card">
+        <h3 style="text-align:center;">নতুন ওষুধ যোগ করুন</h3>
+        <input id="n" placeholder="ওষুধের নাম (Brand)">
+        <input id="g" placeholder="জেনেরিক নাম">
+        <input id="p" type="number" placeholder="মূল্য (৳)">
+        <input id="s" type="number" placeholder="স্টক পরিমাণ">
+        <button onclick="save()">সেভ করুন</button>
     </div>
-    <div class="form-group"><label>খুচরা মূল্য (৳)</label><input id="price" type="number" step="0.01"></div>
-    <div class="form-group"><label>স্টক পরিমাণ</label><input id="stock" type="number"></div>
-    <button class="btn-save" onclick="save()">💾 ডাটা সেভ করুন</button>
-  </div>
 </div>
 
 <script>
-// --- SUPABASE কানেকশন (আপনার দেওয়া KEY যুক্ত করা হয়েছে) ---
-const SB_URL = 'https://tyinuznjbbzcjcgaotwm.supabase.co';
-const SB_KEY = 'EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5aW51em5qYmJ6Y2pjZ2FvdHdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMzIyNTQsImV4cCI6MjA5MjYwODI1NH0.Q7r8yIYiDJAbVyAwQvOk7XVKsFd2EvUYmeX6YwSGnYM';
-
-const HEADERS = { 
-  'apikey': SB_KEY, 
-  'Authorization': `Bearer ${SB_KEY}`, 
-  'Content-Type': 'application/json',
-  'Prefer': 'return=minimal'
-};
+const URL = 'https://tyinuznjbbzcjcgaotwm.supabase.co/rest/v1/medicines';
+const KEY = 'EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5aW51em5qYmJ6Y2pjZ2FvdHdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMzIyNTQsImV4cCI6MjA5MjYwODI1NH0.Q7r8yIYiDJAbVyAwQvOk7XVKsFd2EvUYmeX6YwSGnYM';
+const opt = { headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' } };
 
 let meds = [];
 
-function showPage(p){
-  document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));
-  document.getElementById('page-'+p).classList.add('active');
+async function load() {
+    try {
+        const r = await fetch(URL + '?select=*', opt);
+        meds = await r.json();
+        render();
+    } catch(e) { document.getElementById('list').innerHTML = "লোড হয়নি। SQL রান করেছেন কি?"; }
 }
 
-async function load(){
-  try {
-    const r = await fetch(`${SB_URL}/rest/v1/medicines?select=*&order=brand.asc`, {headers:HEADERS});
-    meds = await r.json();
-    render();
-  } catch(e) { document.getElementById('list').innerHTML = "ডাটা লোড করতে সমস্যা হচ্ছে।"; }
+function render() {
+    const q = document.getElementById('search').value.toLowerCase();
+    const f = meds.filter(m => (m.brand||'').toLowerCase().includes(q) || (m.generic||'').toLowerCase().includes(q));
+    document.getElementById('list').innerHTML = f.map(m => `
+        <div class="card">
+            <div class="brand">${m.brand}</div>
+            <div class="generic">${m.generic || ''}</div>
+            <div style="margin-top:10px;">মূল্য: ৳${m.unit_price} | স্টক: ${m.stock}</div>
+        </div>`).join('');
 }
 
-function render(){
-  const q = document.getElementById('search').value.toLowerCase();
-  const filtered = meds.filter(m=> m.brand.toLowerCase().includes(q) || m.generic.toLowerCase().includes(q));
-  
-  if(filtered.length === 0) {
-    document.getElementById('list').innerHTML = "<p style='text-align:center;color:#666;'>কোনো ওষুধ পাওয়া যায়নি।</p>";
-    return;
-  }
+async function save() {
+    const data = { 
+        brand: document.getElementById('n').value.trim(), 
+        generic: document.getElementById('g').value.trim(), 
+        unit_price: parseFloat(document.getElementById('p').value) || 0, 
+        stock: parseInt(document.getElementById('s').value) || 0 
+    };
+    if(!data.brand) return alert('নাম দিন!');
 
-  document.getElementById('list').innerHTML = filtered.map(m=> `
-    <div class="card">
-      <div>
-        <div style="font-weight:700;font-size:17px;color:#065c39;">${m.brand}</div>
-        <div style="font-size:12px;color:#666;margin-bottom:5px;">${m.generic}</div>
-        <span style="font-size:11px;background:#f0f0f0;padding:2px 8px;border-radius:10px;">${m.category}</span>
-        <div style="font-size:12px;margin-top:8px;font-weight:600;color:${m.stock > 0 ? '#2d6a4f' : '#c00'}">
-          স্টক: ${m.stock}
-        </div>
-      </div>
-      <div class="price-tag">৳${parseFloat(m.unit_price).toFixed(2)}</div>
-    </div>
-  `).join('');
+    const r = await fetch(URL, { method: 'POST', ...opt, body: JSON.stringify(data) });
+    if(r.ok) { alert('সফল হয়েছে!'); location.reload(); }
+    else { alert('সেভ করতে সমস্যা হয়েছে।'); }
 }
-
-async function save(){
-  const brand = document.getElementById('name').value.trim();
-  const generic = document.getElementById('generic').value.trim();
-  const price = document.getElementById('price').value;
-
-  if(!brand || !generic || !price) {
-    alert('দয়া করে নাম, জেনেরিক এবং মূল্য অবশ্যই দিন!');
-    return;
-  }
-
-  const data = {
-    brand: brand,
-    generic: generic,
-    category: document.getElementById('cat').value,
-    unit_price: parseFloat(price),
-    stock: parseInt(document.getElementById('stock').value || 0)
-  };
-
-  try {
-    const r = await fetch(`${SB_URL}/rest/v1/medicines`, { 
-      method:'POST', 
-      headers:HEADERS, 
-      body:JSON.stringify(data) 
-    });
-    
-    if(r.ok){
-      alert('✅ ওষুধ সফলভাবে সেভ হয়েছে!');
-      // ফর্ম পরিষ্কার করা
-      ['name','generic','price','stock'].forEach(id=>document.getElementById(id).value='');
-      load(); 
-      showPage('home');
-    } else {
-      alert('সেভ করতে সমস্যা হয়েছে। ডাটাবেস টেবিল চেক করুন।');
-    }
-  } catch(e) { alert('ত্রুটি: ' + e.message); }
-}
-
 load();
 </script>
 </body>
