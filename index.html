@@ -5,33 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>রহমত উল্লা ফার্মেসি</title>
     <style>
-        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
-        .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
-        button { background: #065c39; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; background: #f0f7f4; padding: 15px; }
+        .card { background: white; padding: 15px; margin-bottom: 12px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 5px solid #065c39; }
+        .brand { font-size: 18px; font-weight: 700; color: #065c39; }
+        .generic { font-size: 14px; color: #555; font-style: italic; margin-top: 2px; }
+        .price-stock { display: flex; justify-content: space-between; font-weight: 600; font-size: 14px; margin-top: 10px; padding-top: 8px; border-top: 1px solid #eee; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1.5px solid #d4e6dc; border-radius: 10px; outline: none; }
+        button { background: #065c39; color: white; padding: 12px; border: none; border-radius: 10px; cursor: pointer; width: 100%; font-weight: bold; }
         nav { display: flex; gap: 10px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
 <nav>
-    <button onclick="location.reload()">হোম (রিফ্রেশ)</button>
-    <button style="background: #333;" onclick="document.getElementById('admin').style.display='block'; document.getElementById('home').style.display='none';">অ্যাডমিন</button>
+    <button onclick="location.reload()">হোম</button>
+    <button style="background: #333;" onclick="document.getElementById('home').style.display='none'; document.getElementById('admin').style.display='block';">অ্যাডমিন</button>
 </nav>
 
 <div id="home">
-    <input type="text" id="search" placeholder="খুঁজুন..." oninput="render()">
+    <input type="text" id="search" placeholder="ওষুধ বা জেনেরিক দিয়ে খুঁজুন..." oninput="render()">
     <div id="list">লোড হচ্ছে...</div>
 </div>
 
 <div id="admin" style="display:none;">
     <div class="card">
-        <h3>নতুন ওষুধ যোগ করুন</h3>
+        <h3 style="text-align:center;">নতুন ওষুধ যোগ করুন</h3>
         <input id="n" placeholder="ওষুধের নাম (Brand)">
-        <input id="g" placeholder="জেনেরিক নাম">
+        <input id="g" placeholder="জেনেরিক নাম (Paracetamol)">
         <select id="c"><option>Analgesic</option><option>Antacid</option><option>Antibiotic</option><option>Other</option></select>
-        <input id="p" type="number" placeholder="মূল্য">
-        <input id="s" type="number" placeholder="স্টক">
+        <input id="p" type="number" step="0.01" placeholder="মূল্য (৳)">
+        <input id="s" type="number" placeholder="স্টক পরিমাণ (শুধু সংখ্যা)">
         <button onclick="save()">সেভ করুন</button>
     </div>
 </div>
@@ -49,31 +53,39 @@ async function load() {
         const r = await fetch(URL + '?select=*&order=brand.asc', opt);
         meds = await r.json();
         render();
-    } catch(e) { document.getElementById('list').innerHTML = "লোড হয়নি। SQL রান করেছেন?"; }
+    } catch(e) { document.getElementById('list').innerHTML = "লোড হয়নি।"; }
 }
 
 function render() {
     const q = document.getElementById('search').value.toLowerCase();
-    const f = meds.filter(m => m.brand.toLowerCase().includes(q) || m.generic.toLowerCase().includes(q));
+    const f = meds.filter(m => (m.brand||'').toLowerCase().includes(q) || (m.generic||'').toLowerCase().includes(q));
     document.getElementById('list').innerHTML = f.map(m => `
         <div class="card">
-            <b>${m.brand}</b> (${m.generic})<br>
-            মূল্য: ৳${m.unit_price} | স্টক: ${m.stock}
+            <div class="brand">${m.brand}</div>
+            <div class="generic">${m.generic || 'জেনেরিক নেই'}</div>
+            <div class="price-stock">
+                <span>মূল্য: ৳${m.unit_price}</span>
+                <span style="color: ${m.stock > 0 ? '#2d6a4f' : '#c00'}">স্টক: ${m.stock}</span>
+            </div>
         </div>`).join('');
 }
 
 async function save() {
-    const data = {
-        brand: document.getElementById('n').value,
-        generic: document.getElementById('g').value,
-        category: document.getElementById('c').value,
-        unit_price: parseFloat(document.getElementById('p').value),
-        stock: parseInt(document.getElementById('s').value || 0)
-    };
+    const name = document.getElementById('n').value.trim();
+    const generic = document.getElementById('g').value.trim();
+    const price = parseFloat(document.getElementById('p').value);
+    const stock = parseInt(document.getElementById('s').value);
+
+    if(!name || !generic || isNaN(price) || isNaN(stock)) { 
+        alert('দয়া করে সব ঘর সঠিক সংখ্যা দিয়ে পূরণ করুন!'); 
+        return; 
+    }
+
+    const data = { brand: name, generic: generic, category: document.getElementById('c').value, unit_price: price, stock: stock };
 
     const r = await fetch(URL, { method: 'POST', ...opt, body: JSON.stringify(data) });
-    if(r.ok) { alert('সেভ হয়েছে!'); location.reload(); } 
-    else { alert('ভুল! SQL রান না করলে সেভ হবে না।'); }
+    if(r.ok) { alert('✅ সফলভাবে সেভ হয়েছে!'); location.reload(); } 
+    else { alert('সেভ করতে সমস্যা হয়েছে। ডাটাবেস টেবিল চেক করুন।'); }
 }
 load();
 </script>
